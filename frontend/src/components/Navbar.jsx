@@ -44,7 +44,7 @@ const Navbar = () => {
   "
             >
                 <div className="text-primary text-2xl font-bold text-center md:text-left">
-                    RetailGreen AI
+                    Retail ReGen
                 </div>
 
                 {/* Navigation */}
