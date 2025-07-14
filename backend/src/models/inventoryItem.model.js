@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+import {storeOptions} from '../constants/storeOptions.js'
 const inventoryItemSchema = new mongoose.Schema({
   product: {
     type: mongoose.Schema.Types.ObjectId,
@@ -8,9 +8,10 @@ const inventoryItemSchema = new mongoose.Schema({
   },
   store: {
     type: String,
-    required: true
+    required: true,
+    enum: storeOptions 
   },
-  quantity: {
+  quantity: { 
     type: Number,
     required: true,
     min: 0

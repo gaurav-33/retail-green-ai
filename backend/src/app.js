@@ -4,6 +4,8 @@ import cors from "cors"
 import errorHandler from "./middlewares/errorHandler.js"
 import { logger } from "./utils/logger.js"
 import morgan from "morgan"
+import dotenv from "dotenv"
+dotenv.config({ path: './.env' })
 
 const app = express()
 
@@ -28,6 +30,7 @@ import userRouter from "./routes/user.route.js"
 import productRouter from "./routes/product.route.js"
 import inventoryItemRouter from "./routes/inventoryItem.route.js"
 import dashboardRouter from "./routes/dashboard.route.js"
+import calculatorRouter from "./routes/carbonCalculator.route.js"
 import healthCheckRouter from "./routes/healthcheck.route.js"
 
 // routes declaration
@@ -35,6 +38,7 @@ app.use("/api/v1/users", userRouter)
 app.use("/api/v1/products", productRouter)
 app.use("/api/v1/inventory", inventoryItemRouter)
 app.use("/api/v1/dashboard", dashboardRouter)
+app.use("/api/v1/carbon-calculator", calculatorRouter)
 app.use("/api/v1/healthCheck", healthCheckRouter)
 
 // error Handler

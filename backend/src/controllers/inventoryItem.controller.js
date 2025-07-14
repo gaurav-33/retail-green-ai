@@ -3,6 +3,7 @@ import { InventoryItem } from "../models/inventoryItem.model.js";
 import { Product } from "../models/product.model.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { ApiError } from "../utils/apiError.js";
+import { storeOptions } from '../constants/storeOptions.js';
 
 // ⏺ Create or Update Inventory Item
 export const upsertInventoryItem = asyncHandler(async (req, res) => {
@@ -27,20 +28,37 @@ export const upsertInventoryItem = asyncHandler(async (req, res) => {
 
 // ⏺ Get All Inventory Items (optionally filter by store/status)
 export const getInventoryItems = asyncHandler(async (req, res) => {
-  const { store, status } = req.query;
+  const { store, status, page = 1, limit = 10 } = req.query;
 
   const filter = {};
   if (store) filter.store = store;
   if (status) filter.status = status;
 
-  const items = await InventoryItem.find(filter).populate("product");
-  return res.status(200).json(new ApiResponse(200, items, "Inventory fetched"));
+  const skip = (parseInt(page) - 1) * parseInt(limit);
+  const total = await InventoryItem.countDocuments(filter);
+
+  const items = await InventoryItem.find(filter)
+    .populate("product")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(parseInt(limit));
+
+  return res.status(200).json(
+    new ApiResponse(200, {
+      items,
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total,
+      totalPages: Math.ceil(total / parseInt(limit))
+    }, "Inventory fetched")
+  );
 });
+
 
 // ⏺ Delete an Inventory Item
 export const deleteInventoryItem = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const item = await InventoryItem.findByIdAndDelete(id);
+  const { id } = req.params; // product id
+  const item = await InventoryItem.findOneAndDelete({product: id});
   if (!item) throw new ApiError(404, "Inventory item not found");
 
   return res.status(200).json(new ApiResponse(200, item, "Item deleted"));
@@ -78,3 +96,9 @@ export const refreshExpiryStatus = asyncHandler(async (req, res) => {
 
   return res.status(200).json(new ApiResponse(200, items, "Status refreshed"));
 });
+
+export const getAllStores = asyncHandler(async (req, res) => {
+  return res.status(200).json(
+    new ApiResponse(200, { stores: storeOptions }, "Fetched all stores.")
+  )
+})

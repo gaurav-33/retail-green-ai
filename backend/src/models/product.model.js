@@ -33,6 +33,7 @@ const productSchema = new mongoose.Schema({
         enum: regionOptions,
         default: 'other'
     },
+    shelfLife: { type: Number, default: 0 }, // in days
     price: { type: Number, required: true },
     inventoryLevel: { type: Number, default: 0 },
     unitsSold: { type: Number, default: 0 },

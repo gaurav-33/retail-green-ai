@@ -4,10 +4,22 @@ import {
     getAllProducts,
     getProductById,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getAllCategory,
+    getAllPackagingOption,
+    getAllRegionOPtion,
+    getAllCountry,
+    getAllUnit
 } from "../controllers/product.controller.js";
 
 const router = Router()
+
+router.route("/categories").get(getAllCategory);
+router.route("/regions").get(getAllRegionOPtion);
+router.route("/packings").get(getAllPackagingOption);
+router.route("/countries").get(getAllCountry);
+router.route("/units").get(getAllUnit);
+
 
 router.route("/").post(createProduct);
 router.route("/").get(getAllProducts);

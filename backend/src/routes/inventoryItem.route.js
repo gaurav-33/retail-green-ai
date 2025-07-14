@@ -4,10 +4,13 @@ import {
     getInventoryItems,
     deleteInventoryItem,
     updateWastePrediction,
-    refreshExpiryStatus
+    refreshExpiryStatus,
+    getAllStores
 } from "../controllers/inventoryItem.controller.js";
 
 const router = express.Router();
+
+router.route("/stores").get(getAllStores)
 
 router.route("/").get(getInventoryItems);
 router.route("/").post(upsertInventoryItem);

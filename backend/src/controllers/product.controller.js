@@ -1,12 +1,18 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Product } from "../models/product.model.js";
-import { ApiError } from "../utils/ApiError.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiError } from "../utils/apiError.js";
+import { ApiResponse } from "../utils/apiResponse.js";
+import { packagingOptions } from '../constants/packagingOptions.js';
+import { categoryOptions } from '../constants/categoryOptions.js';
+import { regionOptions } from '../constants/regionOptions.js';
+import { countryOptions } from '../constants/countryOptions.js';
+import { unitOptions } from '../constants/unitOptions.js';
 
 const createProduct = asyncHandler(async (req, res) => {
     const {
         name, category, packaging, unit,
         country, region,
+        shelfLife,
         price, inventoryLevel, unitsSold, demandForecast
     } = req.body;
 
@@ -27,7 +33,8 @@ const createProduct = asyncHandler(async (req, res) => {
         price,
         inventoryLevel,
         unitsSold,
-        demandForecast
+        demandForecast,
+        shelfLife: shelfLife || 0
     });
 
     return res.status(201).json(
@@ -36,9 +43,26 @@ const createProduct = asyncHandler(async (req, res) => {
 });
 
 const getAllProducts = asyncHandler(async (req, res) => {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const { page = 1, limit = 10, category, search } = req.query;
+    const query = {};
+    if (category) query.category = category;
+    if (search) query.name = { $regex: search, $options: "i" };
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const total = await Product.countDocuments(query);
+    const products = await Product.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit));
+
     return res.status(200).json(
-        new ApiResponse(200, products, "Fetched all products.")
+        new ApiResponse(200, {
+            products,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            total,
+            totalPages: Math.ceil(total / parseInt(limit))
+        }, "Fetched all products.")
     );
 });
 
@@ -86,10 +110,38 @@ const deleteProduct = asyncHandler(async (req, res) => {
     );
 });
 
+const getAllCategory = asyncHandler(async (_, res) => {
+    return res.status(200).json(
+        new ApiResponse(200, { categories: categoryOptions }, "Fetched all categories."))
+})
+
+const getAllPackagingOption = asyncHandler(async (_, res) => {
+    return res.status(200).json(
+        new ApiResponse(200, { packagings: packagingOptions }, "Fetched all packagings."))
+})
+const getAllRegionOPtion = asyncHandler(async (_, res) => {
+    return res.status(200).json(
+        new ApiResponse(200, { regions: regionOptions }, "Fetched all regions."))
+})
+const getAllCountry = asyncHandler(async (_, res) => {
+    return res.status(200).json(
+        new ApiResponse(200, { countries: countryOptions }, "Fetched all countrie."))
+})
+const getAllUnit = asyncHandler(async (_, res) => {
+    return res.status(200).json(
+        new ApiResponse(200, { units: unitOptions }, "Fetched all units."))
+})
+
+
 export {
     createProduct,
     getAllProducts,
     getProductById,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getAllCategory,
+    getAllPackagingOption,
+    getAllRegionOPtion,
+    getAllCountry,
+    getAllUnit
 }
